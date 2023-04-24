@@ -1,0 +1,21 @@
+# create db
+ 
+create database test;
+
+# create tables
+
+create table departments (id int PRIMARY KEY, name text, total_cpus_limit int check (total_cpus_limit >= 0));
+
+create table users (id integer primary key, department_id int not null, name text, total_cpus_limit int check(total_cpus_limit>0), foreign key (department_id) REFERENCES departments (id));
+
+create table tasks (id int primary key, user_id int not null, name text, is_running bool , cpu_count int check (cpu_count>0), foreign key (user_id) references users (id));
+
+
+#insert values into tables
+
+insert into departments(id,name,total_cpus_limit) values (1,'progers',10);
+
+insert into users (id, department_id, name, total_cpus_limit) values (1,1,'Alex',5) , (2,1,'Max',4);
+
+insert into tasks (id, user_id, name, is_running , cpu_count) values (1,1,'count',true,2),(2,2,'pull',false,2),(3,1,'drop',false,3),(4,2,'insert', true, 4),(5,1,'create',false,2);
+

@@ -1,0 +1,24 @@
+SELECT
+    (CASE
+        WHEN u.total_cpus_limit IS NOT NULL AND u.total_cpus_limit != 0 AND (
+            SELECT COALESCE(SUM(t2.cpu_count), 0)
+            FROM tasks t2
+            WHERE t2.user_id = t.user_id AND t2.is_running = true
+        ) + t.cpu_count <= u.total_cpus_limit THEN true
+        WHEN u.total_cpus_limit IS NULL OR u.total_cpus_limit = 0 THEN (
+            SELECT d.total_cpus_limit IS NOT NULL AND d.total_cpus_limit != 0 AND (
+                SELECT COALESCE(SUM(t3.cpu_count), 0)
+                FROM tasks t3
+                JOIN users u2 ON t3.user_id = u2.id
+                WHERE u2.department_id = u.department_id AND t3.is_running = true
+            ) + t.cpu_count <= d.total_cpus_limit
+            FROM users u
+            JOIN departments d ON u.department_id = d.id
+            WHERE t.user_id = u.id AND u.department_id = d.id
+        )
+        ELSE false
+    END) AS can_run
+FROM tasks t
+JOIN users u ON t.user_id = u.id
+WHERE t.id = <task_id>;
+
